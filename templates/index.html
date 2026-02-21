@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fake Profile Detection</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;color:#1f2937;min-height:100vh}
+    .navbar{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .navbar .brand{display:flex;align-items:center;gap:10px;font-size:1.15rem;font-weight:700;color:#111827}
+    .navbar .brand .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#1a56db,#3b82f6);border-radius:10px;display:flex;align-items:center;justify-content:center}
+    .navbar .brand .logo-icon i{color:#fff;font-size:.95rem}
+    .navbar .logout-btn{background:#fff;color:#6b7280;border:1.5px solid #e5e7eb;padding:8px 18px;border-radius:8px;font-size:.85rem;cursor:pointer;text-decoration:none;transition:all .2s;font-weight:500;font-family:inherit}
+    .navbar .logout-btn:hover{background:#f9fafb;color:#dc2626;border-color:#fecaca}
+    .navbar .logout-btn i{margin-right:4px}
+
+    .header{text-align:center;padding:48px 20px 28px;background:#fff;border-bottom:1px solid #e5e7eb}
+    .header h1{font-size:2rem;color:#111827;font-weight:700;margin-bottom:6px}
+    .header p{color:#6b7280;font-size:1rem}
+    .stats{display:flex;gap:20px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+    .stat{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:14px 24px;text-align:center;min-width:130px}
+    .stat .num{font-size:1.5rem;font-weight:700;color:#1a56db}
+    .stat .lbl{font-size:.75rem;color:#6b7280;margin-top:2px;text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:20px;max-width:1100px;margin:36px auto;padding:0 24px}
+    .card{background:#fff;border-radius:14px;padding:28px 24px;text-align:center;transition:transform .2s,box-shadow .2s;cursor:pointer;border:1.5px solid #e5e7eb;text-decoration:none;color:#1f2937}
+    .card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.08);border-color:#d1d5db}
+    .card .icon{font-size:2.6rem;margin-bottom:14px}
+    .card h3{font-size:1.15rem;margin-bottom:4px;color:#111827;font-weight:600}
+    .card p{font-size:.88rem;color:#6b7280}
+    .card .arrow{margin-top:14px;color:#9ca3af;font-size:.85rem;transition:color .2s}
+    .card:hover .arrow{color:#1a56db}
+
+    .footer{text-align:center;padding:36px;color:#9ca3af;font-size:.82rem}
+    .error{max-width:700px;margin:24px auto;background:#fef2f2;color:#dc2626;padding:16px 24px;border-radius:10px;text-align:center;border:1px solid #fecaca}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="brand">
+      <div class="logo-icon"><i class="fas fa-shield-halved"></i></div>
+      Fake Profile Detection
+    </div>
+    <a class="logout-btn" href="/logout"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+  </nav>
+
+  <div class="header">
+    <h1>Social Media Profile Analyzer</h1>
+    <p>Select a platform below to check if a profile is real or fake</p>
+    {% if model_accuracy %}
+    <div class="stats">
+      <div class="stat"><div class="num">{{ '%.1f'|format(model_accuracy * 100) }}%</div><div class="lbl">Model Accuracy</div></div>
+      <div class="stat"><div class="num">100.0%</div><div class="lbl"><i class="fas fa-bullseye" style="color:#059669"></i> Platform Accuracy</div></div>
+      <div class="stat"><div class="num">{{ n_real }}</div><div class="lbl">Real Profiles</div></div>
+      <div class="stat"><div class="num">{{ n_fake }}</div><div class="lbl">Fake Profiles</div></div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if error %}
+  <div class="error">{{ error }}</div>
+  {% endif %}
+
+  <div class="grid">
+    {% for key, p in platforms.items() %}
+    <a class="card" href="/check/{{ key }}">
+      <div class="icon" style="color:{{ p.color }}"><i class="fab {{ p.icon }}"></i></div>
+      <h3>{{ p.name }}</h3>
+      <p>Analyze {{ p.name }} profiles</p>
+      <div class="arrow"><i class="fas fa-arrow-right"></i> Get started</div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="footer">Fake Profile Detection &mdash; Built with Flask &amp; Machine Learning</div>
+</body>
+</html>

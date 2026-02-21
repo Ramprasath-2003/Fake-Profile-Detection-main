@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Check {{ pinfo.name }} Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;color:#1f2937;min-height:100vh}
+
+    .navbar{display:flex;align-items:center;gap:16px;padding:14px 32px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .navbar a{color:#6b7280;text-decoration:none;font-size:.92rem;transition:color .2s;font-weight:500}
+    .navbar a:hover{color:#1a56db}
+    .navbar .brand{display:flex;align-items:center;gap:8px;font-weight:700;color:#111827;font-size:1rem}
+    .navbar .brand .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#1a56db,#3b82f6);border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .navbar .brand .logo-icon i{color:#fff;font-size:.8rem}
+    .navbar .sep{color:#d1d5db;margin:0 4px}
+    .navbar .platform-name{font-weight:600;color:#111827}
+    .navbar .logout-btn{margin-left:auto;background:#fff;color:#6b7280;border:1.5px solid #e5e7eb;padding:7px 16px;border-radius:8px;font-size:.82rem;text-decoration:none;transition:all .2s;font-weight:500}
+    .navbar .logout-btn:hover{color:#dc2626;border-color:#fecaca;background:#fef2f2}
+
+    .container{max-width:720px;margin:32px auto;padding:0 24px}
+    .platform-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:24px 28px;background:#fff;border-radius:14px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    .platform-header .icon{font-size:2.4rem}
+    .platform-header h2{font-size:1.35rem;color:#111827;font-weight:700}
+    .platform-header p{color:#6b7280;font-size:.88rem;margin-top:2px}
+
+    .form-card{background:#fff;border-radius:14px;padding:28px 28px 32px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    .field{margin-bottom:18px}
+    .field label{display:block;font-size:.82rem;color:#374151;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+    .field input,.field select{width:100%;padding:11px 16px;border:1.5px solid #e5e7eb;background:#f9fafb;color:#111827;border-radius:10px;font-size:.95rem;outline:none;transition:border-color .2s,box-shadow .2s;font-family:inherit}
+    .field input:focus,.field select:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1);background:#fff}
+    .field input::placeholder{color:#9ca3af}
+    .field select{cursor:pointer}
+    .field select option{background:#fff;color:#1f2937}
+
+    .username-field input{font-size:1.05rem;padding:13px 18px;font-weight:500}
+    .username-field .hint{font-size:.78rem;color:#9ca3af;margin-top:4px}
+    .divider{border:none;border-top:1px solid #e5e7eb;margin:22px 0}
+
+    .btn{display:block;width:100%;padding:13px;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;color:#fff;transition:opacity .2s,transform .1s;font-family:inherit}
+    .btn:hover{opacity:.9;transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+
+    .result{margin-top:24px;border-radius:14px;padding:28px;text-align:center;animation:fadeIn .4s ease;background:#fff;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .result .score{font-size:3.2rem;font-weight:800;line-height:1}
+    .result .label{font-size:1.2rem;margin-top:6px;font-weight:600}
+    .result .explain{margin-top:10px;font-size:.9rem;color:#6b7280;line-height:1.5}
+
+    .gauge{width:200px;height:100px;margin:16px auto 0;position:relative;overflow:hidden}
+    .gauge .bg{width:200px;height:100px;border-radius:100px 100px 0 0;background:#e5e7eb}
+    .gauge .needle{position:absolute;bottom:0;left:50%;width:3px;height:90px;margin-left:-1.5px;background:#111827;transform-origin:center bottom;border-radius:2px;transition:transform .8s ease}
+    .gauge .center-dot{position:absolute;bottom:-5px;left:50%;width:12px;height:12px;margin-left:-6px;background:#111827;border-radius:50%;z-index:2}
+
+    .uname-card{background:#f9fafb;border-radius:12px;padding:20px 24px;margin-top:20px;text-align:left;border:1px solid #e5e7eb}
+    .uname-card h4{color:#6b7280;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:600}
+    .uname-card .uname-display{font-size:1.4rem;font-weight:700;color:#111827;word-break:break-all}
+    .uname-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-top:14px}
+    .uname-stat{background:#fff;padding:10px 14px;border-radius:8px;border:1px solid #e5e7eb}
+    .uname-stat .val{font-size:1.05rem;font-weight:700;color:#1a56db}
+    .uname-stat .lbl{font-size:.72rem;color:#9ca3af;margin-top:2px;text-transform:uppercase;letter-spacing:.3px}
+    .uname-flags{margin-top:12px}
+    .uname-flags span{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.8rem;margin:3px 4px 3px 0;font-weight:500}
+    .flag-warn{background:#fef3c7;color:#d97706;border:1px solid #fde68a}
+    .flag-ok{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0}
+
+    .details-card{background:#f9fafb;border-radius:12px;padding:20px 24px;margin-top:16px;text-align:left;border:1px solid #e5e7eb}
+    .details-card h4{color:#6b7280;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:600}
+    .detail-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #f3f4f6}
+    .detail-row:last-child{border:none}
+    .detail-row .emoji{font-size:1rem;width:28px;flex-shrink:0}
+    .detail-row .dl{flex:1;font-weight:600;color:#374151;font-size:.9rem}
+    .detail-row .dv{color:#111827;font-weight:700;min-width:80px;text-align:right;font-size:.92rem}
+    .detail-row .dn{color:#9ca3af;font-size:.78rem;margin-left:12px;min-width:100px;text-align:right}
+
+    .tips{margin-top:20px;text-align:left;background:#f9fafb;border-radius:12px;padding:20px 24px;border:1px solid #e5e7eb}
+    .tips h4{color:#6b7280;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600}
+    .tips ul{list-style:none;padding:0}
+    .tips li{padding:5px 0;font-size:.88rem;color:#6b7280}
+    .tips li::before{content:'\2022 ';color:#d1d5db;font-weight:700;margin-right:6px}
+
+    .footer{text-align:center;padding:36px;color:#9ca3af;font-size:.82rem}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/"><i class="fas fa-arrow-left"></i> Back</a>
+    <span class="sep">/</span>
+    <div class="brand">
+      <div class="logo-icon"><i class="fas fa-shield-halved"></i></div>
+    </div>
+    <span class="sep">/</span>
+    <span class="platform-name" style="color:{{ pinfo.color }}"><i class="fab {{ pinfo.icon }}"></i> {{ pinfo.name }}</span>
+    <a class="logout-btn" href="/logout"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+  </nav>
+
+  <div class="container">
+    <div class="platform-header">
+      <div class="icon" style="color:{{ pinfo.color }}"><i class="fab {{ pinfo.icon }}"></i></div>
+      <div>
+        <h2>Check {{ pinfo.name }} Profile</h2>
+        <p style="color:#6b7280;font-size:.88rem">
+            Enter the username and profile details to analyze
+        </p>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <form method="POST" action="/check/{{ platform }}">
+        <!-- Username field (always first) -->
+        <div class="field username-field">
+          <label for="username"><i class="fas fa-at"></i> Username / Profile Handle</label>
+          <input type="text" name="username" id="username"
+                 placeholder="e.g. john_doe_123"
+                 value="{{ form.get('username', '') }}" autocomplete="off" spellcheck="false">
+          <div class="hint">Enter the exact username — digits, length, and patterns are auto-analyzed</div>
+        </div>
+
+        <hr class="divider">
+
+        {% for field in pinfo.fields %}
+        <div class="field">
+          <label for="{{ field.name }}">{{ field.label }}</label>
+          {% if field.type == 'select' %}
+          <select name="{{ field.name }}" id="{{ field.name }}">
+            {% for opt in field.options %}
+            <option value="{{ opt }}" {% if form.get(field.name) == opt %}selected{% endif %}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+          {% else %}
+          <input type="number" name="{{ field.name }}" id="{{ field.name }}"
+                 placeholder="Enter {{ field.label|lower }}"
+                 value="{{ form.get(field.name, '') }}" min="0">
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <button class="btn" type="submit" style="background:{{ pinfo.color }}">
+          <i class="fas fa-magnifying-glass"></i>&nbsp; Analyze Profile
+        </button>
+      </form>
+    </div>
+
+    {% if result %}
+    <div class="result" style="border-left:4px solid {{ result.color }}">
+
+      {% if platform in ('instagram', 'threads') %}
+      <!-- Instagram/Threads Verdict: REAL / SUSPICIOUS / FAKE badge -->
+      <div style="margin-bottom:16px">
+        {% if result.label == 'REAL' %}
+        <div style="display:inline-block;background:#ecfdf5;border:2px solid #059669;border-radius:14px;padding:18px 40px">
+          <div style="font-size:2.8rem;font-weight:800;color:#059669;letter-spacing:2px"><i class="fas fa-check-circle"></i> REAL</div>
+          <div style="color:#065f46;font-size:.92rem;margin-top:4px">This Instagram account appears to be genuine</div>
+        </div>
+        {% elif result.label == 'SUSPICIOUS' %}
+        <div style="display:inline-block;background:#fffbeb;border:2px solid #d97706;border-radius:14px;padding:18px 40px">
+          <div style="font-size:2.8rem;font-weight:800;color:#d97706;letter-spacing:2px"><i class="fas fa-exclamation-triangle"></i> SUSPICIOUS</div>
+          <div style="color:#92400e;font-size:.92rem;margin-top:4px">This Instagram account shows some suspicious patterns</div>
+        </div>
+        {% else %}
+        <div style="display:inline-block;background:#fef2f2;border:2px solid #dc2626;border-radius:14px;padding:18px 40px">
+          <div style="font-size:2.8rem;font-weight:800;color:#dc2626;letter-spacing:2px"><i class="fas fa-user-slash"></i> FAKE</div>
+          <div style="color:#991b1b;font-size:.92rem;margin-top:4px">This Instagram account shows strong signs of being fake</div>
+        </div>
+        {% endif %}
+      </div>
+      <div style="color:#6b7280;font-size:.88rem;margin-bottom:8px">Fake Score: <strong style="color:{{ result.color }};font-size:1.1rem">{{ result.score }}%</strong></div>
+
+      <!-- Real-time Accuracy Card (all platforms) -->
+      {% if result.accuracy %}
+      <div style="display:inline-block;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1.5px solid #6ee7b7;border-radius:14px;padding:18px 28px;margin-top:12px;margin-bottom:12px;text-align:left;min-width:340px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <i class="fas fa-shield-halved" style="color:#059669;font-size:1rem"></i>
+          <span style="font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#065f46">{{ pinfo.name }} Analysis Accuracy</span>
+          <span style="margin-left:auto;font-size:.7rem;color:#6b7280;background:#fff;padding:2px 8px;border-radius:10px;border:1px solid #e5e7eb"><i class="fas fa-circle" style="color:#22c55e;font-size:.4rem;vertical-align:middle"></i> LIVE</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+          <div style="position:relative;width:90px;height:90px;flex-shrink:0">
+            <svg viewBox="0 0 36 36" style="width:90px;height:90px;transform:rotate(-90deg)">
+              <path d="M18 2.5 a 15.5 15.5 0 0 1 0 31 a 15.5 15.5 0 0 1 0 -31" fill="none" stroke="#d1fae5" stroke-width="3"/>
+              <path d="M18 2.5 a 15.5 15.5 0 0 1 0 31 a 15.5 15.5 0 0 1 0 -31" fill="none"
+                    stroke="#059669"
+                    stroke-width="3" stroke-dasharray="{{ result.accuracy.total * 0.9738 }}, 100"
+                    stroke-linecap="round" style="transition:stroke-dasharray 1.5s ease"/>
+            </svg>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+              <div style="font-size:1.3rem;font-weight:800;color:#059669">{{ result.accuracy.total }}%</div>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:.78rem;color:#6b7280;margin-bottom:6px">
+              <i class="fas fa-signal"></i> Signals: <strong style="color:#111827">{{ result.accuracy.signals_analyzed }}/{{ result.accuracy.signals_total }}</strong>
+            </div>
+            <div style="font-size:.78rem;color:#6b7280;margin-bottom:6px">
+              <i class="fas fa-database"></i> Data Quality: <strong style="color:#059669">{{ result.accuracy.data_quality }}</strong>
+            </div>
+            <div style="font-size:.78rem;color:#6b7280">
+              <i class="fas fa-bullseye"></i> Verdict Confidence: <strong style="color:#059669">{{ result.accuracy.verdict_confidence }}</strong>
+            </div>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:10px 14px;border:1px solid #d1fae5">
+          <div style="display:flex;justify-content:space-between;font-size:.72rem;color:#6b7280;margin-bottom:4px">
+            <span>Accuracy</span>
+            <span>{{ result.accuracy.total }}%</span>
+          </div>
+          <div style="height:8px;background:#d1fae5;border-radius:4px;overflow:hidden">
+            <div style="height:100%;border-radius:4px;transition:width 1.2s ease;width:{{ result.accuracy.total }}%;
+              background:linear-gradient(90deg,#059669,#22c55e)"></div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% elif platform not in ('instagram', 'threads') %}
+      <!-- Non-Instagram: Gauge + percentage -->
+      <div class="gauge">
+        <div class="bg"></div>
+        <div class="needle" style="transform:rotate({{ (result.score / 100 * 180) - 90 }}deg)"></div>
+        <div class="center-dot"></div>
+      </div>
+      <div class="score" style="color:{{ result.color }}">{{ result.score }}%</div>
+      <div class="label" style="color:{{ result.color }}">{{ result.label }}</div>
+
+      <!-- Real-time Accuracy Card (non-Instagram platforms) -->
+      {% if result.accuracy %}
+      <div style="display:inline-block;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1.5px solid #6ee7b7;border-radius:14px;padding:18px 28px;margin-top:16px;margin-bottom:12px;text-align:left;min-width:340px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <i class="fas fa-shield-halved" style="color:#059669;font-size:1rem"></i>
+          <span style="font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#065f46">{{ pinfo.name }} Analysis Accuracy</span>
+          <span style="margin-left:auto;font-size:.7rem;color:#6b7280;background:#fff;padding:2px 8px;border-radius:10px;border:1px solid #e5e7eb"><i class="fas fa-circle" style="color:#22c55e;font-size:.4rem;vertical-align:middle"></i> LIVE</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+          <div style="position:relative;width:90px;height:90px;flex-shrink:0">
+            <svg viewBox="0 0 36 36" style="width:90px;height:90px;transform:rotate(-90deg)">
+              <path d="M18 2.5 a 15.5 15.5 0 0 1 0 31 a 15.5 15.5 0 0 1 0 -31" fill="none" stroke="#d1fae5" stroke-width="3"/>
+              <path d="M18 2.5 a 15.5 15.5 0 0 1 0 31 a 15.5 15.5 0 0 1 0 -31" fill="none"
+                    stroke="#059669"
+                    stroke-width="3" stroke-dasharray="{{ result.accuracy.total * 0.9738 }}, 100"
+                    stroke-linecap="round" style="transition:stroke-dasharray 1.5s ease"/>
+            </svg>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+              <div style="font-size:1.3rem;font-weight:800;color:#059669">{{ result.accuracy.total }}%</div>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:.78rem;color:#6b7280;margin-bottom:6px">
+              <i class="fas fa-signal"></i> Signals: <strong style="color:#111827">{{ result.accuracy.signals_analyzed }}/{{ result.accuracy.signals_total }}</strong>
+            </div>
+            <div style="font-size:.78rem;color:#6b7280;margin-bottom:6px">
+              <i class="fas fa-database"></i> Data Quality: <strong style="color:#059669">{{ result.accuracy.data_quality }}</strong>
+            </div>
+            <div style="font-size:.78rem;color:#6b7280">
+              <i class="fas fa-bullseye"></i> Verdict Confidence: <strong style="color:#059669">{{ result.accuracy.verdict_confidence }}</strong>
+            </div>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:10px 14px;border:1px solid #d1fae5">
+          <div style="display:flex;justify-content:space-between;font-size:.72rem;color:#6b7280;margin-bottom:4px">
+            <span>Accuracy</span>
+            <span>{{ result.accuracy.total }}%</span>
+          </div>
+          <div style="height:8px;background:#d1fae5;border-radius:4px;overflow:hidden">
+            <div style="height:100%;border-radius:4px;transition:width 1.2s ease;width:{{ result.accuracy.total }}%;
+              background:linear-gradient(90deg,#059669,#22c55e)"></div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      <div class="explain">
+        {% if platform in ('instagram', 'threads') %}
+          {% if result.label == 'FAKE' %}
+            This account shows <strong>strong indicators of being fake</strong> — low followers, few posts, suspicious username patterns, or missing profile details.
+          {% elif result.label == 'SUSPICIOUS' %}
+            This account has <strong>some suspicious patterns</strong> — verify the account before trusting.
+          {% else %}
+            This account appears to be <strong>a real person or brand</strong> based on follower count, post activity, and profile completeness.
+          {% endif %}
+        {% else %}
+          {% if result.score >= 70 %}
+            This profile shows <strong>strong indicators</strong> of being fake. Exercise extreme caution.
+          {% elif result.score >= 40 %}
+            This profile has <strong>some suspicious traits</strong>. Verify the identity before trusting.
+          {% else %}
+            This profile appears to be <strong>genuine</strong> based on the provided information.
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <!-- Username Analysis -->
+      {% if result.uinfo and result.uinfo.username %}
+      <div class="uname-card">
+        <h4><i class="fas fa-at"></i> Username Analysis</h4>
+        <div class="uname-display" style="color:{{ pinfo.color }}">@{{ result.uinfo.username }}</div>
+        <div class="uname-stats">
+          <div class="uname-stat"><div class="val">{{ result.uinfo.length }}</div><div class="lbl">Length</div></div>
+          <div class="uname-stat"><div class="val">{{ result.uinfo.digit_count }}</div><div class="lbl">Digits</div></div>
+          <div class="uname-stat"><div class="val">{{ result.uinfo.digit_ratio }}%</div><div class="lbl">Digit Ratio</div></div>
+          <div class="uname-stat"><div class="val">{{ result.uinfo.consecutive_digits }}</div><div class="lbl">Consecutive Digits</div></div>
+        </div>
+        <div class="uname-flags">
+          {% for flag in result.uinfo.flags %}
+            {% if 'normal' in flag|lower %}
+              <span class="flag-ok">{{ flag }}</span>
+            {% else %}
+              <span class="flag-warn">{{ flag }}</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Per-field Details -->
+      {% if result.details %}
+      <div class="details-card">
+        <h4><i class="fas fa-clipboard-list"></i> Detailed Analysis</h4>
+        {% for label, value, emoji, note in result.details %}
+        <div class="detail-row">
+          <span class="emoji">{{ emoji }}</span>
+          <span class="dl">{{ label }}</span>
+          <span class="dv">{{ value }}</span>
+          <span class="dn">{{ note }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="tips">
+        <h4>How to spot fake profiles</h4>
+        <ul>
+          <li>No profile picture or stock/stolen image</li>
+          <li>Very few posts but many followers or following</li>
+          <li>Random usernames with lots of numbers</li>
+          <li>Empty or very short bio</li>
+          <li>Account created very recently</li>
+          <li>Follower/following ratio is unusual</li>
+          <li>No engagement (likes, comments) on posts</li>
+          <li>No story highlights or reels</li>
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="footer">Fake Profile Detection &mdash; Built with Flask &amp; Machine Learning</div>
+
+  <!-- Auto-fill from username lookup -->
+  <script>
+  (function(){
+    const platform = "{{ platform }}";
+
+    // ── Username auto-lookup ──
+    const usernameInput = document.getElementById('username');
+    const form = document.querySelector('.form-card form');
+    const btn = form.querySelector('.btn');
+    let debounceTimer = null;
+    let lastLookup = '';
+
+    // Create lookup status indicator
+    const hintDiv = document.querySelector('.username-field .hint');
+    const origHint = hintDiv.textContent;
+
+    function setStatus(msg, color){
+      hintDiv.innerHTML = msg;
+      hintDiv.style.color = color || '#9ca3af';
+    }
+
+    function resetHint(){
+      hintDiv.textContent = origHint;
+      hintDiv.style.color = '#9ca3af';
+    }
+
+    function doLookup(){
+      const uname = usernameInput.value.trim().replace(/^@/,'');
+      if(!uname || uname === lastLookup) return;
+      lastLookup = uname;
+
+      setStatus('<i class="fas fa-spinner fa-spin"></i> Looking up @' + uname + '...', '#1a56db');
+
+      fetch('/api/lookup/' + platform + '?username=' + encodeURIComponent(uname))
+        .then(r => r.json())
+        .then(data => {
+          if(data.found && data.fields){
+            // Auto-fill all form fields
+            let filled = 0;
+            for(const [key, val] of Object.entries(data.fields)){
+              const el = document.getElementById(key);
+              if(el){
+                el.value = val;
+                el.style.borderColor = '{{ pinfo.color }}';
+                el.style.transition = 'border-color .3s';
+                filled++;
+                // Pulse animation
+                el.style.background = '{{ pinfo.color }}08';
+                setTimeout(()=>{ el.style.background = '#f9fafb'; }, 600);
+              }
+            }
+
+            let extra = '';
+            if(data.extra){
+              if(data.extra.name) extra += ' &nbsp;<strong>' + data.extra.name + '</strong>';
+              if(data.extra.is_fake_in_dataset) extra += ' &nbsp;<span style="color:#dc2626;font-size:.8rem">[Labeled FAKE in dataset]</span>';
+              else extra += ' &nbsp;<span style="color:#059669;font-size:.8rem">[Labeled REAL in dataset]</span>';;
+              if(data.extra.description) extra += '<br><span style="color:#6b7280;font-size:.82rem">&ldquo;' + data.extra.description.substring(0,100) + '&rdquo;</span>';
+            }
+
+            setStatus('<i class="fas fa-check-circle" style="color:#059669"></i> Found in ' + (data.source||'dataset') + ' — ' + filled + ' fields auto-filled.' + extra, '#059669');
+
+            // Auto-submit after a short delay so user sees the filled values
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>&nbsp; Analyzing...';
+            setTimeout(()=>{ form.submit(); }, 800);
+          } else {
+            setStatus('<i class="fas fa-info-circle"></i> ' + (data.message || 'Not found — please fill details manually.'), '#d97706');
+          }
+        })
+        .catch(err => {
+          setStatus('<i class="fas fa-exclamation-triangle"></i> Lookup error — fill details manually.', '#dc2626');
+        });
+    }
+
+    // Trigger lookup on Enter key in username field
+    usernameInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        doLookup();
+      }
+    });
+
+    // Trigger lookup on blur (tab out)
+    usernameInput.addEventListener('blur', function(){
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(doLookup, 300);
+    });
+
+    // Also trigger on typing (debounced, 1 second after stop typing)
+    usernameInput.addEventListener('input', function(){
+      clearTimeout(debounceTimer);
+      const uname = usernameInput.value.trim().replace(/^@/,'');
+      if(uname.length >= 3){
+        debounceTimer = setTimeout(doLookup, 1000);
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
