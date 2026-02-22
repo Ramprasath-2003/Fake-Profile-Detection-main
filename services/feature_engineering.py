@@ -1,20 +1,20 @@
 """
 Feature engineering service.
 
-Converts raw Instagram profile data into the ML feature vector
-matching the exact column order used during model training.
+Converts unified ProfileData from any platform into the ML feature vector
+matching the exact column order used during model training (17 features).
 """
 
 import numpy as np
-from services.instagram_service import InstagramProfile
+from services.base import ProfileData
 
 
 # ── Column order must match scaler / model training ──────────────────
 FEATURE_COLUMNS = [
-    "pos",   # mediacount / posts
-    "flw",   # followers
-    "flg",   # followees / following
-    "bl",    # biography length
+    "pos",   # posts / videos / tweets
+    "flw",   # followers / subscribers
+    "flg",   # following / friends
+    "bl",    # biography / description length
     "pic",   # has profile picture (1/0)
     "lin",   # has external URL / link (1/0)
     "cl",    # (unavailable from scraping) → 0
@@ -31,65 +31,47 @@ FEATURE_COLUMNS = [
 ]
 
 
-def profile_to_features(profile: InstagramProfile) -> np.ndarray:
+def profile_to_features(profile: ProfileData) -> np.ndarray:
     """
-    Convert an InstagramProfile into a 1-D numpy feature vector.
+    Convert any platform's ProfileData into a 1-D numpy feature vector.
 
-    Features not available from public scraping are initialised to 0,
-    which is safe because the scaler will center them around the training mean.
+    Works identically for Instagram, Twitter, Facebook, Threads,
+    Telegram, LinkedIn, and YouTube — all map to the same 17 columns.
 
     Returns:
         numpy array of shape (17,) in the exact column order expected
         by the scaler and model.
     """
-    # Raw features from Instagram scraping
-    pos = profile.mediacount
+    pos = profile.posts
     flw = profile.followers
-    flg = profile.followees
-    bl = len(profile.biography)
+    flg = profile.following
+    bl = profile.bio_length
     pic = 1 if profile.has_profile_pic else 0
     lin = 1 if profile.has_external_url else 0
 
     # Features unavailable from scraping — safe default = 0
-    cl = 0
-    cz = 0
-    ni = 0
-    erl = 0
-    erc = 0
-    lt = 0
-    hc = 0
-    pr = 0
-    fo = 0
-    cs = 0
-    pi = 0
+    cl = cz = ni = erl = erc = lt = hc = pr = fo = cs = pi = 0
 
-    feature_vector = np.array(
+    return np.array(
         [pos, flw, flg, bl, pic, lin, cl, cz, ni, erl, erc, lt, hc, pr, fo, cs, pi],
         dtype=np.float64,
     )
 
-    return feature_vector
 
-
-def compute_engineered_features(profile: InstagramProfile) -> dict:
+def compute_engineered_features(profile: ProfileData) -> dict:
     """
-    Compute engineered features for informational / display purposes.
-
-    These are NOT fed into the model (not used during training),
-    but are useful for the response payload.
+    Compute engineered features for display purposes.
+    Not fed into the model, but useful for the response payload.
     """
     flw = profile.followers
-    flg = profile.followees
+    flg = profile.following
     pic = 1 if profile.has_profile_pic else 0
     lin = 1 if profile.has_external_url else 0
-
-    # Unavailable features defaulted to 0
-    erl, erc, lt, hc, pr, cl = 0, 0, 0, 0, 0, 0
+    pos = profile.posts
 
     return {
         "follow_ratio": round(flw / (flg + 1), 4),
-        "engagement_ratio": round(erl / (erc + 1), 4),
-        "activity_score": lt + hc + pr,
-        "social_strength": flw * erc,
-        "profile_strength": pic + lin + cl,
+        "profile_strength": pic + lin,
+        "activity_score": pos,
+        "social_strength": flw,
     }
