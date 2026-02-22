@@ -4,77 +4,227 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fake Profile Detection</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;color:#1f2937;min-height:100vh}
+
     .navbar{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 1px 2px rgba(0,0,0,.04)}
     .navbar .brand{display:flex;align-items:center;gap:10px;font-size:1.15rem;font-weight:700;color:#111827}
-    .navbar .brand .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#1a56db,#3b82f6);border-radius:10px;display:flex;align-items:center;justify-content:center}
+    .navbar .brand .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#E1306C,#F77737);border-radius:10px;display:flex;align-items:center;justify-content:center}
     .navbar .brand .logo-icon i{color:#fff;font-size:.95rem}
     .navbar .logout-btn{background:#fff;color:#6b7280;border:1.5px solid #e5e7eb;padding:8px 18px;border-radius:8px;font-size:.85rem;cursor:pointer;text-decoration:none;transition:all .2s;font-weight:500;font-family:inherit}
     .navbar .logout-btn:hover{background:#f9fafb;color:#dc2626;border-color:#fecaca}
-    .navbar .logout-btn i{margin-right:4px}
 
-    .header{text-align:center;padding:48px 20px 28px;background:#fff;border-bottom:1px solid #e5e7eb}
-    .header h1{font-size:2rem;color:#111827;font-weight:700;margin-bottom:6px}
-    .header p{color:#6b7280;font-size:1rem}
-    .stats{display:flex;gap:20px;justify-content:center;margin-top:22px;flex-wrap:wrap}
-    .stat{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:14px 24px;text-align:center;min-width:130px}
-    .stat .num{font-size:1.5rem;font-weight:700;color:#1a56db}
-    .stat .lbl{font-size:.75rem;color:#6b7280;margin-top:2px;text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+    .container{max-width:760px;margin:0 auto;padding:40px 24px}
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:20px;max-width:1100px;margin:36px auto;padding:0 24px}
-    .card{background:#fff;border-radius:14px;padding:28px 24px;text-align:center;transition:transform .2s,box-shadow .2s;cursor:pointer;border:1.5px solid #e5e7eb;text-decoration:none;color:#1f2937}
-    .card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.08);border-color:#d1d5db}
-    .card .icon{font-size:2.6rem;margin-bottom:14px}
-    .card h3{font-size:1.15rem;margin-bottom:4px;color:#111827;font-weight:600}
-    .card p{font-size:.88rem;color:#6b7280}
-    .card .arrow{margin-top:14px;color:#9ca3af;font-size:.85rem;transition:color .2s}
-    .card:hover .arrow{color:#1a56db}
+    .hero{text-align:center;margin-bottom:36px}
+    .hero h1{font-size:2rem;color:#111827;font-weight:800;margin-bottom:8px}
+    .hero p{color:#6b7280;font-size:1rem;line-height:1.6}
+
+    .form-card{background:#fff;border-radius:16px;padding:32px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04);margin-bottom:28px}
+    .form-card label{display:block;font-size:.82rem;color:#374151;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+    .input-row{display:flex;gap:12px}
+    .input-row input{flex:1;padding:13px 18px;border:1.5px solid #e5e7eb;background:#f9fafb;color:#111827;border-radius:10px;font-size:1rem;outline:none;transition:border-color .2s,box-shadow .2s;font-family:inherit}
+    .input-row input:focus{border-color:#E1306C;box-shadow:0 0 0 3px rgba(225,48,108,.1);background:#fff}
+    .input-row input::placeholder{color:#9ca3af}
+    .input-row button{padding:13px 28px;border:none;border-radius:10px;background:linear-gradient(135deg,#E1306C,#F77737);color:#fff;font-size:1rem;font-weight:600;cursor:pointer;transition:opacity .2s,transform .1s;font-family:inherit;white-space:nowrap}
+    .input-row button:hover{opacity:.9;transform:translateY(-1px)}
+    .input-row button:active{transform:translateY(0)}
+    .hint{font-size:.78rem;color:#9ca3af;margin-top:6px}
+    .hint code{background:#f3f4f6;padding:1px 5px;border-radius:4px;font-size:.76rem}
+
+    .error-banner{background:#fef2f2;color:#dc2626;padding:16px 24px;border-radius:12px;text-align:center;border:1px solid #fecaca;margin-bottom:24px;font-size:.92rem}
+    .error-banner i{margin-right:6px}
+
+    /* ── Result Card ── */
+    .result-card{background:#fff;border-radius:16px;padding:0;border:1px solid #e5e7eb;box-shadow:0 4px 16px rgba(0,0,0,.06);overflow:hidden;animation:fadeIn .5s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+    .result-header{padding:28px 32px;text-align:center}
+    .result-header .username{font-size:1.6rem;font-weight:800;color:#111827;margin-bottom:4px}
+    .result-header .username i{color:#E1306C;margin-right:6px}
+
+    .verdict{display:inline-block;padding:14px 40px;border-radius:14px;margin-top:16px}
+    .verdict .label{font-size:2.4rem;font-weight:800;letter-spacing:2px}
+    .verdict .sub{font-size:.88rem;margin-top:4px}
+
+    .verdict-real{background:#ecfdf5;border:2px solid #059669}
+    .verdict-real .label{color:#059669}
+    .verdict-real .sub{color:#065f46}
+
+    .verdict-fake{background:#fef2f2;border:2px solid #dc2626}
+    .verdict-fake .label{color:#dc2626}
+    .verdict-fake .sub{color:#991b1b}
+
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb}
+    .metric{padding:20px;text-align:center;border-right:1px solid #e5e7eb}
+    .metric:last-child{border-right:none}
+    .metric .val{font-size:1.4rem;font-weight:800;color:#111827}
+    .metric .lbl{font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;font-weight:500}
+
+    .risk-bar-container{padding:20px 32px}
+    .risk-bar-label{display:flex;justify-content:space-between;font-size:.78rem;color:#6b7280;margin-bottom:6px;font-weight:500}
+    .risk-bar{height:10px;background:#e5e7eb;border-radius:6px;overflow:hidden}
+    .risk-bar .fill{height:100%;border-radius:6px;transition:width 1s ease}
+    .fill-low{background:linear-gradient(90deg,#059669,#34d399);width:var(--risk-pct)}
+    .fill-medium{background:linear-gradient(90deg,#f59e0b,#fbbf24);width:var(--risk-pct)}
+    .fill-high{background:linear-gradient(90deg,#dc2626,#f87171);width:var(--risk-pct)}
+
+    .profile-details{padding:0 32px 28px}
+    .profile-details h4{font-size:.82rem;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;font-weight:600}
+    .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+    .detail-item{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;text-align:center}
+    .detail-item .dval{font-size:1.15rem;font-weight:700;color:#111827}
+    .detail-item .dlbl{font-size:.72rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+
+    .tips{padding:0 32px 28px}
+    .tips h4{font-size:.82rem;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600}
+    .tips ul{list-style:none;padding:0;columns:2;column-gap:24px}
+    .tips li{padding:4px 0;font-size:.85rem;color:#6b7280;break-inside:avoid}
+    .tips li::before{content:'\2022 ';color:#d1d5db;font-weight:700;margin-right:4px}
 
     .footer{text-align:center;padding:36px;color:#9ca3af;font-size:.82rem}
-    .error{max-width:700px;margin:24px auto;background:#fef2f2;color:#dc2626;padding:16px 24px;border-radius:10px;text-align:center;border:1px solid #fecaca}
+
+    @media(max-width:600px){
+      .input-row{flex-direction:column}
+      .metrics{grid-template-columns:1fr}
+      .metric{border-right:none;border-bottom:1px solid #e5e7eb}
+      .metric:last-child{border-bottom:none}
+      .tips ul{columns:1}
+    }
   </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="brand">
-      <div class="logo-icon"><i class="fas fa-shield-halved"></i></div>
+      <div class="logo-icon"><i class="fab fa-instagram"></i></div>
       Fake Profile Detection
     </div>
     <a class="logout-btn" href="/logout"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
   </nav>
 
-  <div class="header">
-    <h1>Social Media Profile Analyzer</h1>
-    <p>Select a platform below to check if a profile is real or fake</p>
-    {% if model_accuracy %}
-    <div class="stats">
-      <div class="stat"><div class="num">{{ '%.1f'|format(model_accuracy * 100) }}%</div><div class="lbl">Model Accuracy</div></div>
-      <div class="stat"><div class="num">100.0%</div><div class="lbl"><i class="fas fa-bullseye" style="color:#059669"></i> Platform Accuracy</div></div>
-      <div class="stat"><div class="num">{{ n_real }}</div><div class="lbl">Real Profiles</div></div>
-      <div class="stat"><div class="num">{{ n_fake }}</div><div class="lbl">Fake Profiles</div></div>
+  <div class="container">
+    <div class="hero">
+      <h1><i class="fab fa-instagram" style="color:#E1306C"></i> Instagram Profile Analyzer</h1>
+      <p>Paste an Instagram profile URL below to check if the account is real or fake using our trained ML model.</p>
+    </div>
+
+    {% if error %}
+    <div class="error-banner"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+    {% endif %}
+
+    <div class="form-card">
+      <label for="profile_url"><i class="fas fa-link"></i> Instagram Profile URL</label>
+      <form method="POST" action="/analyze">
+        <div class="input-row">
+          <input type="text" name="profile_url" id="profile_url"
+                 placeholder="https://www.instagram.com/username/"
+                 value="{{ profile_url or '' }}" autocomplete="off" spellcheck="false" required>
+          <button type="submit"><i class="fas fa-magnifying-glass"></i>&nbsp; Analyze</button>
+        </div>
+        <div class="hint">Supports full URLs, @handles, or plain usernames &mdash; e.g. <code>https://www.instagram.com/natgeo/</code></div>
+      </form>
+    </div>
+
+    {% if result %}
+    <div class="result-card">
+      <div class="result-header">
+        <div class="username"><i class="fab fa-instagram"></i> @{{ result.username }}</div>
+
+        {% if result.prediction == "Fake" %}
+        <div class="verdict verdict-fake">
+          <div class="label"><i class="fas fa-user-slash"></i> FAKE</div>
+          <div class="sub">This account shows strong signs of being fake</div>
+        </div>
+        {% else %}
+        <div class="verdict verdict-real">
+          <div class="label"><i class="fas fa-check-circle"></i> REAL</div>
+          <div class="sub">This account appears to be genuine</div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="val" style="color:{% if result.risk_level == 'High' %}#dc2626{% elif result.risk_level == 'Medium' %}#d97706{% else %}#059669{% endif %}">
+            {{ '%.1f'|format(result.risk_score * 100) }}%
+          </div>
+          <div class="lbl">Risk Score</div>
+        </div>
+        <div class="metric">
+          <div class="val">{{ result.prediction }}</div>
+          <div class="lbl">Prediction</div>
+        </div>
+        <div class="metric">
+          <div class="val" style="color:{% if result.risk_level == 'High' %}#dc2626{% elif result.risk_level == 'Medium' %}#d97706{% else %}#059669{% endif %}">
+            {{ result.risk_level }}
+          </div>
+          <div class="lbl">Risk Level</div>
+        </div>
+      </div>
+
+      <div class="risk-bar-container">
+        <div class="risk-bar-label">
+          <span>Risk Score</span>
+          <span>{{ '%.1f'|format(result.risk_score * 100) }}%</span>
+        </div>
+        <div class="risk-bar">
+          <div class="fill fill-{% if result.risk_level == 'High' %}high{% elif result.risk_level == 'Medium' %}medium{% else %}low{% endif %}"
+               style="--risk-pct: {{ '%.1f'|format(result.risk_score * 100) }}%"></div>
+        </div>
+      </div>
+
+      {% if result.profile %}
+      <div class="profile-details">
+        <h4><i class="fas fa-chart-bar"></i> Profile Statistics</h4>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="dval">{{ '{:,}'.format(result.profile.followers) }}</div>
+            <div class="dlbl">Followers</div>
+          </div>
+          <div class="detail-item">
+            <div class="dval">{{ '{:,}'.format(result.profile.following) }}</div>
+            <div class="dlbl">Following</div>
+          </div>
+          <div class="detail-item">
+            <div class="dval">{{ '{:,}'.format(result.profile.posts) }}</div>
+            <div class="dlbl">Posts</div>
+          </div>
+          <div class="detail-item">
+            <div class="dval">{{ result.profile.bio_length }}</div>
+            <div class="dlbl">Bio Length</div>
+          </div>
+          <div class="detail-item">
+            <div class="dval">{{ "Yes" if result.profile.has_profile_pic else "No" }}</div>
+            <div class="dlbl">Profile Pic</div>
+          </div>
+          <div class="detail-item">
+            <div class="dval">{{ "Yes" if result.profile.has_external_url else "No" }}</div>
+            <div class="dlbl">External URL</div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="tips">
+        <h4><i class="fas fa-lightbulb"></i> How to spot fake profiles</h4>
+        <ul>
+          <li>No profile picture or stock/stolen image</li>
+          <li>Very few posts but many followers or following</li>
+          <li>Random usernames with lots of numbers</li>
+          <li>Empty or very short bio</li>
+          <li>Account created very recently</li>
+          <li>Follower/following ratio is unusual</li>
+          <li>No engagement (likes, comments) on posts</li>
+          <li>No story highlights or reels</li>
+        </ul>
+      </div>
     </div>
     {% endif %}
   </div>
 
-  {% if error %}
-  <div class="error">{{ error }}</div>
-  {% endif %}
-
-  <div class="grid">
-    {% for key, p in platforms.items() %}
-    <a class="card" href="/check/{{ key }}">
-      <div class="icon" style="color:{{ p.color }}"><i class="fab {{ p.icon }}"></i></div>
-      <h3>{{ p.name }}</h3>
-      <p>Analyze {{ p.name }} profiles</p>
-      <div class="arrow"><i class="fas fa-arrow-right"></i> Get started</div>
-    </a>
-    {% endfor %}
-  </div>
-
-  <div class="footer">Fake Profile Detection &mdash; Built with Flask &amp; Machine Learning</div>
+  <div class="footer">Fake Profile Detection &mdash; Built with FastAPI &amp; Machine Learning</div>
 </body>
 </html>

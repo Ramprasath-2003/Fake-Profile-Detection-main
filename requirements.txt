@@ -1,3 +1,10 @@
-flask>=2.0
-pandas>=1.0
-scikit-learn>=0.24
+fastapi>=0.100
+uvicorn>=0.20
+joblib>=1.2
+numpy>=1.24
+xgboost>=1.7
+instaloader>=4.10
+scikit-learn>=1.2
+jinja2>=3.1
+python-multipart>=0.0.5
+itsdangerous>=2.1
